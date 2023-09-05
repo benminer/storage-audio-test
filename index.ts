@@ -1,4 +1,4 @@
-import { http } from "@ampt/sdk";
+import { http, storage } from "@ampt/sdk";
 import express, { Router } from "express";
 
 const app = express();
@@ -24,6 +24,18 @@ api.post("/submit", async (req, res) => {
     body: req.body,
     message: "You just posted data",
   });
+});
+
+api.get("/audio/:fileName", async (req, res) => {
+  const { fileName } = req.params;
+  console.log(fileName, "fileName");
+  const songs = storage("songs");
+  if (await songs.exists(fileName)) {
+    const url = await songs.getDownloadUrl(fileName);
+    return res.redirect(url);
+  } else {
+    return res.status(404).send({ message: "Audio file not found!" });
+  }
 });
 
 app.use("/api", api);
